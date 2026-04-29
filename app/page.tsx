@@ -114,6 +114,12 @@ export default function Home() {
     setActive(section);
   };
 
+  const socialLinks = [
+    { href: "https://github.com/jweng121", src: "/git.png", label: "GitHub", target: "_blank" },
+    { href: "https://www.linkedin.com/in/james-weng-25b759317/", src: "/in.png", label: "LinkedIn", target: "_blank" },
+    { href: "mailto:jqweng@uwaterloo.ca", src: "/email.png", label: "Email", target: undefined },
+  ];
+
   return (
     <div className="overflow-x-hidden">
       {sweepY >= 0 && (
@@ -149,8 +155,38 @@ export default function Home() {
           <Signature />
         </div>
 
+        {/* Mobile top navbar */}
+        <nav className="md:hidden fixed top-0 inset-x-0 z-30 bg-white border-b border-zinc-100 flex items-center justify-between px-4 h-14">
+          <div className="flex items-center gap-1">
+            {NAV.map(({ section, icon }) => (
+              <button
+                key={section}
+                data-custom-click-sound
+                onClick={(event) => handleNavClick(event, section)}
+                className="cursor-pointer transition-opacity duration-150"
+                style={{ opacity: active === section ? 1 : 0.3 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={icon} alt={section} className="h-16 w-auto" />
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ href, src, label, target }) => (
+              <a key={label} href={href} target={target} rel={target ? "noopener noreferrer" : undefined} aria-label={label}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={label} style={{ width: 22, height: 22 }} />
+              </a>
+            ))}
+            <div style={{ filter: "invert(var(--page-invert, 0))" }}>
+              <SpotifyNowPlaying square />
+            </div>
+          </div>
+        </nav>
+
         <div className="relative z-10 flex">
-          <aside className="fixed inset-y-0 left-0 w-44 flex flex-col py-12 px-6 z-30 bg-white">
+          {/* Desktop sidebar */}
+          <aside className="hidden md:flex fixed inset-y-0 left-0 w-44 flex-col py-12 px-6 z-30 bg-white">
             <nav className="flex flex-col mt-2">
               {NAV.map(({ section, icon }) => (
                 <button
@@ -167,14 +203,10 @@ export default function Home() {
             </nav>
           </aside>
 
-          <main className="ml-44 flex-1 min-h-screen">
-            <div className="fixed top-7 right-40 z-40 flex flex-col items-end gap-3">
+          <main className="md:ml-44 flex-1 min-h-screen pt-14 md:pt-0">
+            <div className="hidden md:flex fixed top-7 right-40 z-40 flex-col items-end gap-3">
               <div className="flex items-center gap-3">
-                {[
-                  { href: "https://github.com/jweng121", src: "/git.png", label: "GitHub", target: "_blank" },
-                  { href: "https://www.linkedin.com/in/james-weng-25b759317/", src: "/in.png", label: "LinkedIn", target: "_blank" },
-                  { href: "mailto:jqweng@uwaterloo.ca", src: "/email.png", label: "Email", target: undefined },
-                ].map(({ href, src, label, target }) => (
+                {socialLinks.map(({ href, src, label, target }) => (
                   <a
                     key={label}
                     href={href}
@@ -193,9 +225,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex min-h-screen flex-col px-14 py-12">
+            <div className="flex min-h-screen flex-col px-4 py-6 md:px-14 md:py-12">
               <div className="flex flex-1 gap-10">
-                <div className="max-w-3xl flex-1">
+                <div className="max-w-3xl flex-1 min-w-0">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={active}

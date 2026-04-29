@@ -16,7 +16,7 @@ type NowPlaying = {
 
 const POLL_INTERVAL_MS = 30000;
 
-export function SpotifyNowPlaying() {
+export function SpotifyNowPlaying({ square = false }: { square?: boolean }) {
   const [track, setTrack] = useState<NowPlaying | null>(null);
 
   useEffect(() => {
@@ -26,24 +26,15 @@ export function SpotifyNowPlaying() {
       try {
         const response = await fetch("/api/spotify", { cache: "no-store" });
         const data = (await response.json()) as NowPlaying;
-
-        if (!cancelled) {
-          setTrack(data);
-        }
+        if (!cancelled) setTrack(data);
       } catch {
-        if (!cancelled) {
-          setTrack({ isPlaying: false });
-        }
+        if (!cancelled) setTrack({ isPlaying: false });
       }
     }
 
     loadTrack();
     const intervalId = window.setInterval(loadTrack, POLL_INTERVAL_MS);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
+    return () => { cancelled = true; window.clearInterval(intervalId); };
   }, []);
 
   const albumImageUrl = track?.albumImageUrl;
@@ -52,7 +43,17 @@ export function SpotifyNowPlaying() {
   const artist = isPlaying ? track?.artist : track ? "" : "loading";
   const href = isPlaying ? track?.songUrl : undefined;
 
-  const content = (
+  const content = square ? (
+    <div className="relative h-9 w-9 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={albumImageUrl ?? "/spotify.jpg"}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        aria-hidden
+      />
+    </div>
+  ) : (
     <div className="relative h-16 w-72 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100">
       {albumImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -89,9 +90,7 @@ export function SpotifyNowPlaying() {
       />
 
       <div className="absolute inset-y-0 left-20 right-3 flex flex-col justify-center">
-        <div className="mt-1 truncate text-sm font-semibold text-zinc-900">
-          {title}
-        </div>
+        <div className="mt-1 truncate text-sm font-semibold text-zinc-900">{title}</div>
         {artist && <div className="truncate text-xs text-zinc-500">{artist}</div>}
       </div>
     </div>
